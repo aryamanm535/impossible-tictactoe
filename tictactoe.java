@@ -1,54 +1,22 @@
 import java.util.*;
 class tictactoe
 {
-    ArrayList <Integer> input = new ArrayList();
+    ArrayList <Integer> input = new ArrayList<>();
     String[][] board = {{"-","-","-"},{"-","-","-",},{"-","-","-"}}; 
+    boolean human = false;
     void game()
     {
+        System.out.println("Input 1,2,3,4,5,6,7,8,9 for the position of your input");
+        System.out.println("X always plays first for now, I still have to make the algorithm for when player starts game");
         Scanner game = new Scanner(System.in);
-        displayBoard();
-        boolean x = false;
         for(int i=0; i<9;)
         {
-            if(x)
-            {
-                System.out.println("X's turn to play");
-                int p = game.nextInt();
-                if(!inArray(p))
-                {
-                    input.add(p);
-                    switch(p)
-                    {
-                        case 1: board[0][0] = "X";
-                            break;
-                        case 2: board[0][1] = "X";
-                            break;
-                        case 3: board[0][2] = "X";
-                            break;
-                        case 4: board[1][0] = "X";
-                            break;
-                        case 5: board[1][1] = "X";
-                            break;
-                        case 6: board[1][2] = "X";
-                            break;
-                        case 7: board[2][0] = "X";
-                            break;
-                        case 8: board[2][1] = "X";
-                            break;
-                        case 9: board[2][2] = "X";
-                            break;
-                        default: board[2][2] = "X";
-                    }
-                    x = false;
-                    System.out.println();
-                    displayBoard();
-                    i++;
-                }
-                else
-                {
-                    System.out.println("This position is full, enter a valid number");
-                    continue;
-                }
+            if(!human)
+            {  
+                aiPlay();
+                System.out.println();
+                displayBoard();
+                i++;
             }
             else
             {
@@ -79,9 +47,8 @@ class tictactoe
                             break;
                         default: board[2][2] = "O";
                     }
-                    x = true;
+                    human = false;
                     System.out.println();
-                    displayBoard();
                     i++;
                 }
                 else
@@ -100,9 +67,84 @@ class tictactoe
                 System.out.println("\n O wins!");
                 break;
             }
-            else if(gameWon() == "n" && i==8)
-                System.out.println("Draw!");
         }
+        if(gameWon() == "n")
+            System.out.println("Draw!");
+        game.close();
+    }
+
+    void aiPlay()
+    {
+        int bestI = 0;
+        int bestJ = 0;
+        int bestScore = Integer.MIN_VALUE;
+        for(int i=0; i<3; i++)
+            for(int j=0; j<3; j++)
+            {
+                if(board[i][j] == "-")
+                {
+                    board[i][j] = "X";
+                    int score = minimax(0, false);
+                    board[i][j] = "-";
+                    if(score>bestScore)
+                    {
+                        bestScore = score;
+                        bestI = i;
+                        bestJ = j;
+                    }
+                }
+
+            }
+
+        board[bestI][bestJ] = "X";
+        human = true;
+
+    }
+
+    int minimax(int depth, boolean isMaximizing)
+    {
+        String result = gameWon();
+        if(result == "X")
+            return 1;
+        else if(result == "O")
+            return -1;
+
+        if(isMaximizing)
+        {
+            int bestScore = Integer.MIN_VALUE;
+            for(int i = 0; i<3; i++)
+            {
+                for(int j = 0; j<3; j++)
+                {
+                    if(board[i][j] == "-")
+                    {
+                        board[i][j] = "X";
+                        int score = minimax(depth+1, false);
+                        board[i][j] = "-";
+                        bestScore = Math.max(score, bestScore);
+                    }
+                }
+            }
+            return bestScore;
+        }
+        else
+        {
+            int bestScore = Integer.MAX_VALUE;
+            for(int i = 0; i<3; i++)
+            {
+                for(int j = 0; j<3; j++)
+                {
+                    if(board[i][j] == "-")
+                    {
+                        board[i][j] = "O";
+                        int score = minimax(depth+1, true);
+                        board[i][j] = "-";
+                        bestScore = Math.min(bestScore, score);
+                    }
+                }
+            }
+            return bestScore;
+        }    
     }
 
     boolean inArray(int x)
@@ -125,22 +167,24 @@ class tictactoe
 
     String gameWon()
     {
-        //rows and columns
+        String row, col, d1, d2;
         for(int i=0; i<3; i++)
         {
-            if((board[0][i].equals(board[1][i]) && board[1][i].equals(board[2][i])) && !(board[0][i].equals("-")))
-                return board[0][i];
-            else if((board[i][0].equals(board[i][1]) && board[i][1].equals(board[i][2])) && !(board[i][0].equals("-")))
+            row = ""; col = ""; d1 = ""; d2 = "";
+            for(int j=0; j<3; j++)
             {
-                return board[i][0];
+                row += board[i][j];
+                col += board[j][i];
+                d1 += board[j][j];
+                d2 += board[j][2-j];
+                if(row.equals("XXX") || col.equals("XXX")||d1.equals("XXX")||d2.equals("XXX"))
+                    return "X";
+                else if(row.equals("OOO") || col.equals("OOO")||d1.equals("OOO")||d2.equals("OOO"))
+                    return "O";
+                else
+                    continue;
             }
         }
-        //primary diagonal
-        if((board[0][0].equals(board[1][1]) && board[1][1].equals(board[2][2])) && !(board[0][0].equals("-")))
-            return board[0][0];
-        //secondary diagonal
-        else if((board[0][2].equals(board[1][1]) && board[1][1].equals(board[2][0])) && !(board[0][2].equals("-")))
-            return board[0][2];
         return "n";
     }
 
@@ -149,4 +193,4 @@ class tictactoe
         tictactoe game1 = new tictactoe();
         game1.game();
     }
-}   
+}
