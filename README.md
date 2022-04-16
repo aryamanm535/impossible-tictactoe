@@ -1,5 +1,5 @@
 # tictactoe
-Goal: To create a working, player vs ai tic-tac-toe game using Java, using only linear data structures and the minimax algorithm
+Goal: To create a working, player vs ai tic-tac-toe game using Java, using only linear data structures and the minimax algorithm. The goal is to design the game such that the player never wins.
 
 Logic: 
 - Create a 2d 3x3 string array that starts with dashes in each position
